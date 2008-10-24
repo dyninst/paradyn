@@ -20,8 +20,8 @@ BUILD_ID = "$(SUITE_NAME) v$(RELEASE_NUM)$(BUILD_MARK)$(BUILD_NUM)"
 #
 # "DyninstAPI" is the list of additional API components (optional).
 
-basicComps	= igen mrnet pdutil 
-ParadynD	= pdutil igen mrnet sharedMem rtinst symtabAPI dyninstAPI dyninstAPI_RT paradynd
+basicComps	= igen pdutil 
+ParadynD	= pdutil igen sharedMem rtinst paradynd
 ParadynFE	= pdthread paradyn
 ParadynVC	= visi \
 		visiClients/tclVisi visiClients/barchart \
@@ -30,25 +30,8 @@ ParadynVC	= visi \
 		visiClients/termWin
 
 subSystems	= $(ParadynD) $(ParadynFE) $(ParadynVC)
-SymtabAPI 	= ready common symtabAPI dynutil
-StackwalkerAPI = ready common symtabAPI stackwalk
-DyninstAPI	= ready common symtabAPI dyninstAPI_RT dyninstAPI dynutil instructionAPI
-InstructionAPI	= ready common instructionAPI dynutil
-
-testsuites = dyninstAPI/tests testsuite 
-
-allSubdirs	= $(subSystems) common dyninstAPI/tests testsuite dynutil instructionAPI stackwalk newtestsuite
-allSubdirs_noinstall =
-
-# We're not building the new test suite on all platforms yet
-ifeq ($(DONT_BUILD_NEWTESTSUITE),false)
-testsuites += newtestsuite
-allSubdirs_noinstall += newtestsuite
-endif
 
 # "fullSystem" is the list of all Paradyn & DyninstAPI components to build:
-# set DONT_BUILD_PARADYN or DONT_BUILD_DYNINST in make.config.local if desired
-ifndef DONT_BUILD_PARADYN
 fullSystem	+= $(basicComps)
 Build_list	+= basicComps
 ifndef DONT_BUILD_FE
@@ -62,20 +45,6 @@ endif
 ifndef DONT_BUILD_VISIS
 fullSystem	+= $(ParadynVC)
 Build_list	+= ParadynVC
-endif
-endif
-
-ifndef DONT_BUILD_DYNINST
-fullSystem	+= $(DyninstAPI)
-Build_list	+= DyninstAPI
-endif
-
-ifndef DONT_BUILD_OLDTESTSUITE
-fullSystem	+= dyninstAPI/tests
-endif
-
-ifndef DONT_BUILD_TESTSUITE
-fullSystem	+= testsuite
 endif
 
 # Note that the first rule listed ("all") is what gets made by default,
@@ -151,14 +120,8 @@ ready:
 
 intro:
 	@echo "Build of $(BUILD_ID) starting for $(PLATFORM)!"
-ifdef DONT_BUILD_PARADYN
-	@echo "Build of Paradyn components skipped!"
-endif
 ifdef DONT_BUILD_FE
 	@echo "Build of Paradyn front-end components skipped!"
-endif
-ifdef DONT_BUILD_DAEMON
-	@echo "Build of Paradyn daemon components skipped!"
 endif
 ifdef DONT_BUILD_VISIS
 	@echo "Build of Paradyn visi client components skipped!"
@@ -166,17 +129,14 @@ endif
 ifdef DONT_BUILD_PD_MT
 	@echo "Build of ParadynMT components skipped!"
 endif
-ifdef DONT_BUILD_DYNINST
-	@echo "Build of DyninstAPI components skipped!"
-endif
 
 world: intro
 	$(MAKE) $(fullSystem)
 	@echo "Build of $(BUILD_ID) complete for $(PLATFORM)!"
 
-# "make Paradyn" and "make DyninstAPI" are also useful and valid build targets!
+# "make Paradyn" is also a useful and valid build target!
 
-Paradyn ParadynD ParadynFE ParadynVC DyninstAPI SymtabAPI StackwalkerAPI basicComps subSystems testsuites InstructionAPI: 
+Paradyn ParadynD ParadynFE ParadynVC basicComps subSystems: 
 	$(MAKE) $($@)
 	@echo "Build of $@ complete."
 	@date
@@ -226,13 +186,9 @@ $(allSubdirs_explicitInstall): install_%: %
 
 
 # dependencies -- keep parallel make from building out of order
-symtabAPI igen: common
-stackwalk: symtabAPI dynutil
-dyninstAPI: symtabAPI instructionAPI
-symtabAPI dyninstAPI: dynutil
-paradynd:  pdutil dyninstAPI 
+paradynd:  pdutil
 paradyn: pdutil pdthread 
-pdthread: igen mrnet 
+pdthread: igen
 visi:  pdutil
 pdutil: igen
 visiClients/tclVisi: visi
@@ -241,9 +197,8 @@ visiClients/tableVisi: visi
 visiClients/phaseTable: visi
 visiClients/histVisi: visi
 visiClients/terrain: visi
-visiClients/termWin: visi mrnet pdthread
-dyner codeCoverage dyninstAPI/tests testsuite newtestsuite: dyninstAPI
-rtinst: igen dyninstAPI_RT 
+visiClients/termWin: visi pdthread
+rtinst: igen
 
 # This rule passes down the documentation-related make stuff to
 # lower-level Makefiles in the individual "docs" directories.
@@ -256,28 +211,3 @@ docs install-man:
 		true;						\
 	    fi							\
 	done
-
-
-# The "make nightly" target is what should get run automatically every
-# night.  It uses "make world" to build things in the right order for
-# a build from scratch.  
-#
-# Note that "nightly" should only be run on the primary build site,
-# and does things like building documentation that don't need to be
-# built for each different architecture.  Other "non-primary" build
-# sites that run each night should just run "make clean world".
-
-umd-nightly:
-	$(MAKE) clean
-	$(MAKE) DyninstAPI
-
-# Used for nightly builds
-nightly: DyninstAPI newtestsuite
-
-#nightly:
-#	$(MAKE) clean
-#	$(MAKE) world
-##	$(MAKE) DyninstAPI
-#	$(MAKE) docs
-#	$(MAKE) install-man
-#	chmod 644 /p/paradyn/man/man?/*
