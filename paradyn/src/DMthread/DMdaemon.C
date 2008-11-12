@@ -49,6 +49,9 @@
 #include <malloc.h>
 #include "common/h/headers.h"
 #include "pdutil/h/mdlParse.h"
+#include "DMperfstream.h"
+#include "dynutil/h/util.h"
+#include "mrnet/ParadynFilterIds.h"
 
 template class pdvector<double>;
 template class pdvector < pdvector<double> >;
@@ -120,7 +123,8 @@ extern pdvector<pdstring> mdl_files;
 void metCheckDaemonProcess( const pdstring & );
 
 pdvector<paradynDaemon::MPICHWrapperInfo> paradynDaemon::wrappers;
-dictionary_hash<pdstring, pdvector<paradynDaemon*> > paradynDaemon::daemonsByHost( pdstring::hash );
+dictionary_hash<pdstring, pdvector<paradynDaemon*> > paradynDaemon::daemonsByHost( ::Dyninst::stringhash );
+//dictionary_hash<pdstring, pdvector<paradynDaemon*> > paradynDaemon::daemonsByHost( pdstring::hash );
 dictionary_hash<unsigned, paradynDaemon*> paradynDaemon::daemonsById( uiHash );
 
 
@@ -692,6 +696,7 @@ bool paradynDaemon::defineDaemon (const char *c, const char *d,
 bool paradynDaemon::instantiateMRNetforMPIDaemons(daemonEntry * ide,
                                                   unsigned int iprocess_count)
 {
+#if 0
     MRN::Network * network=NULL;
     MRN::Network::LeafInfo **leafInfo=NULL;
     unsigned int nLeaves = 0;
@@ -718,6 +723,10 @@ bool paradynDaemon::instantiateMRNetforMPIDaemons(daemonEntry * ide,
     ide->setMRNetLeafInfo( leafInfo );
     ide->setMRNetNumLeaves( nLeaves );
     return true;
+#else
+    fprintf(stderr, "%s[%d]:  FIXME:  mrnet issue here\n", FILE__, __LINE__);
+    return true;
+#endif
 }
 
 bool paradynDaemon::instantiateDefaultDaemon( daemonEntry * ide,
@@ -748,8 +757,12 @@ bool paradynDaemon::instantiateDefaultDaemon( daemonEntry * ide,
         
         mrnet_top_buf += ";";
 
+#if 0
         network = new MRN::Network (mrnet_top_buf.c_str(), false,
                                      ide->getCommand(), (const char **)argv);
+#else
+    fprintf(stderr, "%s[%d]:  FIXME:  mrnet issue here\n", FILE__, __LINE__);
+#endif
     }
     else{
         network = new MRN::Network (ide->getMRNetTopology(),
@@ -766,6 +779,7 @@ bool paradynDaemon::instantiateDefaultDaemon( daemonEntry * ide,
 
 bool paradynDaemon::instantiateMRNetforManualDaemon( )
 {
+#if 0
     MRN::Network * network=NULL;
     MRN::Network::LeafInfo **leafInfo=NULL;
     unsigned int nLeaves = 0;
@@ -800,6 +814,10 @@ bool paradynDaemon::instantiateMRNetforManualDaemon( )
     initializeDaemon( de, true );
 
     return true;
+#else
+    fprintf(stderr, "%s[%d]:  FIXME:  mrnet issue here\n", FILE__, __LINE__);
+    return false;
+#endif
 }
 
 bool paradynDaemon::initializeDaemon(daemonEntry * de, bool started_manually)
@@ -811,12 +829,20 @@ bool paradynDaemon::initializeDaemon(daemonEntry * de, bool started_manually)
     thread_t stid;
     int *mrnet_sockets;
     unsigned int num_mrnet_sockets;
+#if 0
     de->getMRNetNetwork()->get_SocketFd( &mrnet_sockets, &num_mrnet_sockets );
+#else
+    fprintf(stderr, "%s[%d]:  FIXME:  mrnet issue here\n", FILE__, __LINE__);
+    return false;
+#endif
   
     for( unsigned int i=0; i<num_mrnet_sockets; i++) {
         msg_bind_socket (mrnet_sockets[i], true, NULL, NULL, &stid);
     }
 		
+    paradynDaemon * pd = NULL;
+    pdvector<T_dyninstRPC::daemonSetupStruc> di;
+#if 0
     std::vector<MRN::EndPoint *> endpoints =
         de->getMRNetNetwork()->get_BroadcastCommunicator()->get_EndPoints();
 		
@@ -842,6 +868,10 @@ bool paradynDaemon::initializeDaemon(daemonEntry * de, bool started_manually)
         di.push_back(*dss);
     }
 		
+#else
+    fprintf(stderr, "%s[%d]:  FIXME:  mrnet issue here\n", FILE__, __LINE__);
+    return false;
+#endif
     MRN::Stream * eqcStream = de->getMRNetNetwork()->
         new_Stream( de->getMRNetNetwork()->get_BroadcastCommunicator(),
                     MRN::TFILTER_PD_UINT_EQ_CLASS);
@@ -874,13 +904,13 @@ bool paradynDaemon::initializeDaemon(daemonEntry * de, bool started_manually)
 
             pd->machine = daemon_info[daemon_info[ij].d_id].machine;
             fprintf(stderr, "daemon[%d] machine:%s\n", ij,pd->machine.c_str() );
-            if (pd->machine.suffixed_by(local_domain)) {
+            if (suffixed_by(pd->machine,local_domain)) {
                 const unsigned namelength = pd->machine.length() - local_domain.length() - 1;
               const pdstring localname = pd->machine.substr(0,namelength);
-              pd->status = localname + ":" + pdstring( pd->get_id() );
+              pd->status = localname + ":" + pdstring( utos(pd->get_id()) );
             } 
             else {
-                pd->status = pd->machine + ":" + pdstring(pd->get_id() );
+                pd->status = pd->machine + ":" + pdstring(utos(pd->get_id()) );
             }
             uiMgr->createProcessStatusLine(pd->status.c_str());
         }
@@ -1159,12 +1189,12 @@ pdstring mpichNameWrapper( const pdstring& dir )
    rv += "pdd-";
    rv += getNetworkName();
    rv += "-";
-   rv += pdstring(getpid());
+   rv += pdstring(itos(getpid()));
    rv += "-";
 
    struct timeval tv;
    gettimeofday( &tv, NULL );
-   rv += pdstring(tv.tv_sec * 1000000 + tv.tv_usec);
+   rv += pdstring(utos(tv.tv_sec * 1000000 + tv.tv_usec));
    
    return rv;
 }
@@ -1260,6 +1290,7 @@ bool writeMPICHWrapper(int fd, const pdstring& buffer )
    return true;
 }
 
+#if 0
 void addMRNetInfoToScript(pdstring &script, MRN::Network::LeafInfo **leafInfo, 
                           int nLeaves)
 {
@@ -1271,6 +1302,7 @@ void addMRNetInfoToScript(pdstring &script, MRN::Network::LeafInfo **leafInfo,
            pdstring(leafInfo[i]->get_Rank()) + pdstring("\n");
    }
 }
+#endif
 
 /*
   Create a script file which will start paradynd with appropriate
@@ -1359,8 +1391,12 @@ bool mpichCreateWrapper ( const pdstring& script, daemonEntry *de,
 	// Next add the arguments that define the process to be created.
 	buffer += (pdstring(" -runme ") + app_name + pdstring(" $appargs "));
 
+#if 0
    addMRNetInfoToScript(buffer, de->getMRNetLeafInfo(),
                         de->getMRNetNumLeaves());
+#else
+   fprintf(stderr, "%s[%d]:  FIXME:  mrnet prob here\n", FILE__, __LINE__);
+#endif
 
    if( hostIsLocal(host) ) {
       // the file named by script is our wrapper - write the script to the
@@ -1716,7 +1752,12 @@ bool lamParseCmdline(const pdstring& script, const pdvector<pdstring> &argv,
       //spec, or is a cpu spec, or is the executable name
       if(!in_known){
             bool retVal = false;
-            if(argv[i].prefixed_by("n") || argv[i].prefixed_by("c"))
+            pdstring nstr = pdstring("n");
+            pdstring ccstr = pdstring("c");
+            if(prefixed_by(const_cast<pdstring &>(argv[i]),
+                     nstr) 
+                  || prefixed_by(const_cast<pdstring &>(argv[i]),
+                     ccstr))
                retVal= lamParseNodeSpec(argv[i]);
             if(retVal){
                app = false;  //if it was a node or spec, it's not the app
@@ -2111,7 +2152,7 @@ static bool startMPI( daemonEntry *de,
     }
 
     for (i=0; i<params.size(); i++) {
-        if(params[i] != NULL)
+        if(!(params[i] == nullString))
             cmd[i] = strdup(params[i].c_str());
         else
             cmd[i] = strdup("");

@@ -46,6 +46,10 @@
 
 #include <string.h>
 #include <stdlib.h>
+#include "DMinclude.h"
+#include "dataManager.thread.h"
+#include "dataManager.thread.SRVR.h"
+#if 0
 #include "common/h/Vector.h"
 #include "common/h/Dictionary.h"
 #include "common/h/String.h"
@@ -53,15 +57,15 @@
 #include "pdutil/h/ByteArray.h"
 #include "common/h/machineType.h"
 #include "common/h/Time.h"
-#include "dataManager.thread.h"
-#include "dataManager.thread.SRVR.h"
 #include "dyninstRPC.mrnet.CLNT.h"
 #include "../UIthread/Status.h"
-#include "DMinclude.h"
 #include "DMresource.h"
 #include "DMperfstream.h"
 
 #include "mrnet/MRNet.h"
+#endif
+
+class MRN::Network;
 
 class metricInstance;
 class metric;
@@ -95,7 +99,7 @@ public:
                const pdstring &f, const pdstring &t, const pdstring &MPIt) : 
       machine(m), command(c), name(n), login(l),
       dir(""), remote_shell(r), flavor(f), mrnet_topology(t),
-      MPItype(MPIt), network(NULL), leafInfo(NULL), nLeaves(0) { }
+      MPItype(MPIt), network(NULL), /*leafInfo(NULL),*/ nLeaves(0) { }
 
   ~daemonEntry() { }
 
@@ -114,11 +118,15 @@ public:
   const char *getMRNetTopology() const { return mrnet_topology.c_str();}
   const char * getMPItype() const {return MPItype.c_str();}
   MRN::Network * getMRNetNetwork() const { return network;}
+#if 0
   MRN::Network::LeafInfo ** getMRNetLeafInfo() const { return leafInfo; }
+#endif
   unsigned int getMRNetNumLeaves() const { return nLeaves;}
 
   void setMRNetNetwork(MRN::Network * n) { network=n;}
+#if 0
   void setMRNetLeafInfo(MRN::Network::LeafInfo ** li) { leafInfo=li; }
+#endif
   void setMRNetNumLeaves(unsigned int c) { nLeaves=c;}
 
 
@@ -147,7 +155,9 @@ private:
   pdstring mrnet_topology;
   pdstring MPItype;
   MRN::Network * network;
+#if 0
   MRN::Network::LeafInfo **leafInfo;
+#endif
   unsigned int nLeaves;
 };
 
@@ -184,6 +194,9 @@ class executable {
 // executing an "assert(0)" - naim
 //
 class processMet;
+class resource;
+class resourceList;
+
 class paradynDaemon: public dynRPCUser {
    friend class dynRPCUser;
    friend class processMet;
@@ -205,7 +218,8 @@ class paradynDaemon: public dynRPCUser {
    static dictionary_hash<unsigned, paradynDaemon* > daemonsById;
 
    MRN::Network * getNetwork() const { return network; }
-   MRN::EndPoint * getEndPoint() const { return endpoint; }
+   //MRN::EndPoint * getEndPoint() const { return endpoint; }
+   MRN::CommunicationNode * getEndPoint() const { return endpoint; }
    MRN::Communicator * getCommunicator() const { return communicator; }
    void setCommunicator(MRN::Communicator * com)
 		 {
@@ -258,7 +272,9 @@ class paradynDaemon: public dynRPCUser {
    paradynDaemon(const pdstring &m, const pdstring &u, const pdstring &c,
 		 const pdstring &r, const pdstring &n, const pdstring &flav);
    paradynDaemon(PDSOCKET use_sock); // remaining values are set via a callback
-   paradynDaemon(MRN::Network *, MRN::EndPoint *, pdstring &m, pdstring &l,
+   //paradynDaemon(MRN::Network *, MRN::EndPoint *, pdstring &m, pdstring &l,
+   //              pdstring &n, pdstring &f);
+   paradynDaemon(MRN::Network *, MRN::CommunicationNode *, pdstring &m, pdstring &l,
                  pdstring &n, pdstring &f);
    ~paradynDaemon();
    
@@ -447,7 +463,8 @@ class paradynDaemon: public dynRPCUser {
    
  private:
     MRN::Network *network; //mrnet network to which daemon belongs
-    MRN::EndPoint *endpoint; //endpoint for daemon in mrnet network
+    //MRN::EndPoint *endpoint; //endpoint for daemon in mrnet network
+    MRN::CommunicationNode *endpoint; //endpoint for daemon in mrnet network
     MRN::Communicator *communicator; //endpoint for daemon in mrnet network
 
    bool   dead;	// has there been an error on the link.

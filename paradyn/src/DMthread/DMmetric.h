@@ -43,22 +43,24 @@
 
 #ifndef dmmetric_H
 #define dmmetric_H
-#include "pdutil/h/hist.h"
+#include <string.h>
+#include <stdlib.h>
+#if 0
 #include "dataManager.thread.h"
 #include "dataManager.thread.SRVR.h"
-#include <string.h>
 #include "paradyn/src/UIthread/Status.h"
-#include <stdlib.h>
 #include "common/h/Vector.h"
 #include "common/h/Dictionary.h"
 #include "common/h/String.h"
 #include "common/h/Time.h"
 #include "pdutil/h/pdSample.h"
-#include "pdutil/h/sampleAggregator.h"
 #include "DMinclude.h"
 #include "DMdaemon.h"
 #include "paradyn/src/TCthread/tunableConst.h"
+#endif
+#include "pdutil/h/hist.h"
 #include "pdutil/h/metricStyle.h"
+#include "pdutil/h/sampleAggregator.h"
 
 // trace data streams
 typedef void (*dataCallBack2)(const void *data,
@@ -68,37 +70,19 @@ typedef void (*dataCallBack2)(const void *data,
 #define UNUSED_METRIC_HANDLE	(unsigned) -1
 
 class metricInstance;
+class paradynDaemon;
 
 // a part of an mi.
 //
+
 class component {
     friend class metricInstance;
     friend class paradynDaemon;
     public:
-	component(paradynDaemon *d, int i, metricInstance *mi) {
-	    daemon = d;
-	    id = i;
-            // Is this add unique?
-            assert(i >= 0);
-	    d->activeMids[(unsigned)id] = mi;
-	    sample = 0;
-	}
-	~component() {
-	    // don't delete aggComponent, since sampleAggregator will
-	    // keep around to aggregate it's data
-        MRN::Network * network = daemon->getNetwork() ;
-        MRN::Communicator * comm = network->new_Communicator( );
-        comm->add_EndPoint( daemon->getEndPoint() );
-
-        MRN::Stream *stream = network->new_Stream(comm);
-
-	    daemon->disableDataCollection(stream, id);
-        assert(id>=0);
-        daemon->disabledMids += (unsigned) id;
-        daemon->activeMids.undef((unsigned)id);
-	}
+	component(paradynDaemon *d, int i, metricInstance *mi); 
+	~component(); 
 	int getId(){return(id);}
-        paradynDaemon *getDaemon() { return(daemon); }
+   paradynDaemon *getDaemon() { return(daemon); }
 
     private:
 	aggComponent *sample;
@@ -125,7 +109,7 @@ class metric {
 	    else if(info.unitstype == 1) return(Normalized);
 	    else return(Sampled);}
 	metricHandle getHandle( void ) const { return(info.handle);}
-	metricStyle  getStyle() { return((metricStyle) info.style); }
+	metricStyle  getStyle(); 
         int   getAggregate() { return info.aggregate;}
 
 	static unsigned  size(){return(metrics.size());}
@@ -144,6 +128,8 @@ class metric {
 	static pdvector<metric*> metrics;  // indexed by metric id
 	T_dyninstRPC::metricInfo info;
 };
+
+class Histogram;
 
 struct archive_type {
     Histogram *data;
@@ -164,6 +150,9 @@ struct perfStreamEntry {
                              // the performanceStream
   perfStreamHandle psHandle;
 };
+
+
+class resourceList;
 
 class metricInstance {
     friend class dataManager;
@@ -209,10 +198,8 @@ class metricInstance {
 	const char *getMetricName(){ return(metric::getName(met));}
         const char *getMetricUnits(){ return(metric::getUnits(met));}
         dm_MetUnitsType getMetricUnitsType(){return(metric::getUnitsType(met));}
-	const char *getFocusName(){return(resourceList::getName(focus));}
-	bool convertToIDList(pdvector<u_int> &rl){
-	    return resourceList::convertToIDList(focus,rl);
-        }
+	const char *getFocusName();
+	bool convertToIDList(pdvector<u_int> &rl);
 	void addInterval(relTimeStamp s, relTimeStamp e, pdSample v){
 	     if(data) 
                  data->addInterval(s,e,v);
@@ -377,7 +364,7 @@ class metricInstance {
         void addTraceUser(perfStreamHandle p);
         void removeTraceUser(perfStreamHandle);
 
-	resourceList *getresourceList(){return(resourceList::getFocus(focus));}
+	resourceList *getresourceList();
 	// write contents of one histogram plus header info into a file
 	void saveOneMI_Histo(std::ofstream& fptr, Histogram *hdata, int phaseid);
 };

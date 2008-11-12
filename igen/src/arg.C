@@ -43,10 +43,13 @@
 // Put in by Ariel Tamches; moved from main.C into its own .h/.C file combo
 // for clarity.
 
+#include <iostream>
 #include "arg.h"
 #include "Options.h"
 #include "type_defn.h"
 
+using std::cerr;
+using std::endl;
 pdstring arg::deref(const bool use_ref) const {
   if (stars_)
     return pointers_;
@@ -96,7 +99,7 @@ arg::arg(const pdstring *type, const unsigned star_count,
   constant_(b), stars_(star_count), is_ref_(is_ref) {
 
   if(is_ref_ && star_count) {
-    cerr << "Cannot use pointers with a reference, good bye\n";
+     std::cerr << "Cannot use pointers with a reference, good bye\n";
     exit(0);
   }
 
@@ -108,8 +111,8 @@ arg::arg(const pdstring *type, const unsigned star_count,
   if (!(Options::all_types[type_])->can_point() &&
       (star_count>1) &&
       (Options::ml->address_space() == message_layer::AS_many)) {
-    cerr << "Sorry, pointers not handled for this type, goodbye\n";
-    cerr << "Type = " << *type << "  name = " << *name << endl;
+     std::cerr << "Sorry, pointers not handled for this type, goodbye\n";
+     std::cerr << "Type = " << *type << "  name = " << *name << endl;
     exit(-1);
   }
   if (star_count)

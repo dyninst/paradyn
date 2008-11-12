@@ -44,8 +44,13 @@
 #ifndef _PDDEBUG_OSTREAM_H_
 #define _PDDEBUG_OSTREAM_H_
 
+#include <iostream>
+using std::cerr;
+using std::endl;
+
 #include "common/h/std_namesp.h"
 #include "common/h/Types.h"
+#include "common/h/String.h"
 #include "common/h/std_namesp.h"
 
 class timeUnit;
@@ -57,7 +62,9 @@ class aggComponent;
 class sampleAggregator;
 class pdSample;
 class pdRate;
+#if defined (cap_use_pdstring)
 class pdstring;
+#endif
 template<class dmTimeFuncClass_t, class dmTimeQyFuncParam_t> 
 class timeMechanism;
 

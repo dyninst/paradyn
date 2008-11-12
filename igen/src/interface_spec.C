@@ -42,6 +42,11 @@
 #include "interface_spec.h"
 #include "parse.h"
 #include "Options.h"
+#include "dynutil/h/util.h"
+#include <iostream>
+using std::cerr;
+using std::endl;
+
 
 // utility functions used from main.C
 extern pdstring	unqual_type( const pdstring& type );
@@ -50,7 +55,7 @@ interface_spec::interface_spec(const pdstring *name, const unsigned &b,
 			       const unsigned &v)
 : name_(*name), base_(b), version_(v),
   client_prefix_(*name+"User::"), server_prefix_(*name+"::"), 
-  client_name_(*name + "User"), server_name_(*name), all_functions_(pdstring::hash) 
+  client_name_(*name + "User"), server_name_(*name), all_functions_(::Dyninst::stringhash) 
 { }
 
 interface_spec::~interface_spec() { }
@@ -747,7 +752,13 @@ bool interface_spec::gen_client_verify(ofstream &out_stream) const {
        out_stream << Options::error_state(true, 6, "igen_proto_err", "false");
 
        out_stream << "\tchar* proto_temp;\n";
+#if 0
        out_stream << "\tif(MRN::Stream::unpack((MRN::Packet *) buf,\"s\",&proto_temp) < 0)\n\t{"<<endl;
+#else
+       fprintf(stderr, "%s[%d]:  FIXME:  MRNET compilation issue\n", __FILE__, __LINE__);
+       out_stream << "\tif(-1 < 0)\n\t{"<<endl;
+
+#endif
        out_stream << "\t    set_err_state(igen_proto_err);\n";
        out_stream << "\t    cerr << \"Recieve error\" << endl;\n";
        out_stream << "\t    handle_error();\n";
@@ -1087,7 +1098,12 @@ bool interface_spec::gen_await_response(ofstream &out_stream, bool srvr) const {
   else
     {
       //out_stream << "\tMRN::Stream * stream;\n";
+#if 0
       out_stream << "\tif( stream->recv( (int*)&tag,(MRN::Packet **)recv_buffer,true) < 0)\n\t{"<<endl;
+#else
+      out_stream << "\tif( -1 < 0)\n\t{"<<endl;
+      fprintf(stderr, "%s[%d]:  FIXME:  MRNet error here\n", __FILE__, __LINE__);
+#endif
       out_stream << "\t    set_err_state(igen_proto_err);\n";
       out_stream << "\t    cerr << \"Protocol verify - bad response from server\" << endl;\n";
       out_stream << "\t    handle_error();\n";
@@ -1189,7 +1205,12 @@ bool interface_spec::gen_wait_loop(ofstream &out_stream, bool srvr) const {
     {
       out_stream << "\tchar* recv_buffer = NULL;\n";
       out_stream << "\tMRN::Stream * stream;\n";
+#if 0
       out_stream << "\tint sret = ntwrk->recv((int*)&tag,(MRN::Packet **)&recv_buffer,&stream,true);\n";
+#else
+      out_stream << "\tint sret = -1;\n";
+      fprintf(stderr, "%s[%d]:  FIXME:  MRNET error here\n", __FILE__, __LINE__);
+#endif
 
       out_stream << "\tif( sret < 0)\n\t ";
       out_stream << Options::error_state(true, 6, "igen_read_err",
@@ -1212,7 +1233,12 @@ bool interface_spec::gen_wait_loop(ofstream &out_stream, bool srvr) const {
       out_stream << "\tif (get_err_state() != igen_no_err)\n\t return "<<Options::type_prefix()<<"error;\n";
       out_stream << "\tchar* recv_buffer = NULL;\n";
       out_stream << "\tMRN::Stream * stream;\n";
+#if 0
       out_stream << "\tint sret = ntwrk->recv((int*)&tag,(MRN::Packet **)&recv_buffer,&stream,false);\n";
+#else
+      out_stream << "\tint sret = -1;\n";
+      fprintf(stderr, "%s[%d]:  FIXME:  MRNET error here\n", __FILE__, __LINE__);
+#endif
       out_stream << "\t	if( sret < 0)\n\t{\n"
 		 << "\tIGEN_ERR_ASSERT;\n"
 		 <<"\tset_err_state(igen_read_err);\n"
@@ -1309,7 +1335,12 @@ bool interface_spec::gen_wait_loop(ofstream &out_stream, bool srvr) const {
 	  out_stream << "\t"<<Options::type_prefix()<<"message_tags rec_tag;\n";
 
 	  out_stream << "\twhile(true)\n\t{\n";
+#if 0
 	  out_stream << "\tif(ntwrk->recv((int*)&rec_tag,(MRN::Packet **)&recv_buffer,&stream,true) < 0)\n\t";
+#else
+     fprintf(stderr, "%s[%d]:  FIXME:  MRnet problem here\n", __FILE__, __LINE__);
+	  out_stream << "\tif(-1 < 0)\n\t";
+#endif
 	  out_stream << Options::error_state(true, 6, "igen_proto_err", "false");
 
 	  out_stream << "\tswitch_on(stream, rec_tag, recv_buffer);\n";
@@ -1405,8 +1436,8 @@ void interface_spec::ignore(bool is_srvr, char *text) {
   temp[strlen(temp) - 8] = (char) 0;
   temp += 8;
   if (is_srvr)
-    server_ignore += temp;
+    server_ignore.push_back(temp);
   else
-    client_ignore += temp;
+    client_ignore.push_back(temp);
   free(buffer);
 }

@@ -144,6 +144,7 @@ bool P_xdr_send(XDR *xdr, const byteArray &ba) {
   return true;
 }
 
+#if defined (ca_use_pdstring)
 bool P_xdr_send(XDR *xdr, const pdstring &s) {
    unsigned len = s.length();
    if (!P_xdr_send(xdr, len))
@@ -160,6 +161,7 @@ bool P_xdr_send(XDR *xdr, const pdstring &s) {
    
    return true;
 }
+#endif
 
 bool P_xdr_send(XDR *xdr, const std::string &s) {
    unsigned len = s.length();
@@ -284,6 +286,7 @@ bool P_xdr_recv(XDR *xdr, byteArray &ba) {
   }
 }
 
+#if defined (cap_use_pdstring)
 bool P_xdr_recv(XDR *xdr, pdstring &s) {
    // as always "s" is uninitialized, unconstructed raw memory, so we need
    // to manually call the constructor.  As always, constructing a c++ object
@@ -315,6 +318,7 @@ bool P_xdr_recv(XDR *xdr, pdstring &s) {
    
    return true;
 }
+#endif
 
 bool P_xdr_recv(XDR *xdr, std::string &s) {
    // as always "s" is uninitialized, unconstructed raw memory, so we need

@@ -47,8 +47,8 @@
 #define TUNABLE_CONST_H
 
 #include <assert.h>
-#include "util/h/stringPool.h"
-#include "util/h/list.h"
+#include "pdutil/h/stringPool.h"
+//#include "pdutil/h/list.h"
 
 typedef enum tunableUse { developerConstant, userConstant };
 typedef enum tunableType { tunableBoolean, tunableFloat };

@@ -25,7 +25,7 @@ SRCS 	     += \
 		parser.C \
 		scanner.C
 
-SYSLIBS	     += $(FLEX_LIB) -lcommon
+SYSLIBS	     += $(FLEX_LIB) -lcommon -liberty
 
 ifdef CROSSCOMPILER
 SYSLIBS      += -lstdc++

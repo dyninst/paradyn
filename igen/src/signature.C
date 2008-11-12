@@ -45,11 +45,16 @@
 #include "type_defn.h"
 #include "Options.h"
 #include "common/h/Dictionary.h"
+#include <iostream>
+using std::cerr;
+using std::endl;
 
-signature::signature(pdvector<arg*> *alist, const pdstring rf_name) : is_const_(false), stars_(0) {
+
+signature::signature(pdvector<arg*> *alist, const pdstring rf_name) : is_const_(false), stars_(0) 
+{
   assert(alist);
   for (unsigned i=0; i<alist->size(); i++) 
-    args += (*alist)[i];
+    args.push_back( (*alist)[i]);
 
   switch (args.size()) {
   case 0: type_ = "void"; break;

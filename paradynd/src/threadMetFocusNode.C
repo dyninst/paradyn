@@ -47,7 +47,8 @@
 #include "paradynd/src/debug.h"
 
 dictionary_hash<pdstring, threadMetFocusNode_Val*> 
-             threadMetFocusNode::allThrMetFocusNodeVals(pdstring::hash);
+             threadMetFocusNode::allThrMetFocusNodeVals(::Dyninst::stringhash);
+             //threadMetFocusNode::allThrMetFocusNodeVals(pdstring::hash);
 
 
 threadMetFocusNode *threadMetFocusNode::newThreadMetFocusNode(

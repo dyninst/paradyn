@@ -44,7 +44,9 @@
 #include "type_defn.h"
 #include "arg.h"
 #include "Options.h"
-
+#include <iostream>
+using std::cerr;
+using std::endl;
 pdstring type_defn::qual_id() const { return (Options::type_prefix()+unqual_id());}
 
 bool type_defn::assign_to(const pdstring prefix, const pdvector<arg*> &alist,
@@ -97,7 +99,12 @@ bool type_defn::gen_bundler_call_mrnet(ofstream &out_stream,
 {
   pdstring argument_list;
   pdstring format_str;
+#if 0
   pdstring base_unpack = "\tint uret = MRN::Stream::unpack((MRN::Packet *)recv_buffer,";
+#else
+  fprintf(stderr, "%s[%d]:  FIXME:  mrnet compilation issue here\n", __FILE__, __LINE__);
+  pdstring base_unpack = "\tint uret  = -1";
+#endif
   pdstring vec_calc = "\n";
   pdstring vec_calc_format = "\n";
   pdstring vec_calc_finish = "\n";
@@ -351,7 +358,12 @@ bool type_defn::gen_bundler_call_mrnet(ofstream &out_stream,
     out_stream << vec_calc_format << endl << std::flush;
 
   out_stream << "\tu_int dm_id;\n";
+#if 0
   out_stream << base_unpack << "\"" <<"%"<<getFormatType("u_int")<< format_str << "\","<<"&dm_id, " << argument_list << ");" << endl;
+#else
+  out_stream << "int uret = -1;" << endl;
+  fprintf(stderr, "%s[%d]:  FIXME:  MRNet error here\n", __FILE__, __LINE__);
+#endif
   out_stream << std::flush;
   out_stream << "\tif( uret < 0 ) \n\t";
   out_stream << Options::error_state(true, 6, "igen_encode_err", ret_field); 
@@ -461,7 +473,8 @@ type_defn::type_defn(const pdstring &name, bool is_cl, bool is_abs,
   
   if (arglist) {
     for (unsigned i=0; i< arglist->size(); i++)
-      arglist_ += (*arglist)[i];
+      //arglist_ += (*arglist)[i];
+	    arglist_.push_back((*arglist)[i]);
   }
   if (is_derived_) {
     parent_ = Options::type_prefix() + par;
@@ -501,7 +514,10 @@ type_defn::type_defn(const pdstring &name, bool is_class, type_type type,
       bundle_name_ = unqual_name_;
 }
 
-void type_defn::add_kid(const pdstring kid_name) { kids_ += kid_name; }
+void type_defn::add_kid(const pdstring kid_name) 
+{
+	kids_.push_back(kid_name); 
+}
 
 /* Convert a type name with qualified names to a names with unqualified names.
    E.g. vector<T_dyninstRPC::mdl_expr*> to vector<mdl_expr*>

@@ -103,7 +103,7 @@ pdstring Options::allocate_stl_type(pdstring stl_type, pdstring element_name,
   type_defn *ign = new type_defn(stl_type, element_name, star_count, in_lib);
   assert(ign);
   Options::all_types[ign->name()] = ign;
-  Options::vec_types += ign;
+  Options::vec_types.push_back(ign);
   return (ign->name());
 }
 
@@ -148,7 +148,7 @@ pdstring Options::add_type(const pdstring name, const bool is_class, const bool 
 				 ignore_text, bundler_name);
   assert(ign);
   Options::all_types[ign->name()] = ign;
-  Options::vec_types += ign;
+  Options::vec_types.push_back(ign);
   return (ign->name());
 }
 
@@ -159,7 +159,7 @@ pdstring Options::add_type(const pdstring &name, bool is_class,
    assert(ign);
 
    Options::all_types[ign->name()] = ign;
-   Options::vec_types += ign;
+   Options::vec_types.push_back(ign);
    return (ign->name());
 }
 			    

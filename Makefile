@@ -31,7 +31,12 @@ ParadynVC	= visi \
 
 subSystems	= $(ParadynD) $(ParadynFE) $(ParadynVC)
 
+allSubdirs	= $(subSystems) 
+allSubdirs_noinstall =
+
 # "fullSystem" is the list of all Paradyn & DyninstAPI components to build:
+# set DONT_BUILD_PARADYN or DONT_BUILD_DYNINST in make.config.local if desired
+ifndef DONT_BUILD_PARADYN
 fullSystem	+= $(basicComps)
 Build_list	+= basicComps
 ifndef DONT_BUILD_FE
@@ -45,6 +50,7 @@ endif
 ifndef DONT_BUILD_VISIS
 fullSystem	+= $(ParadynVC)
 Build_list	+= ParadynVC
+endif
 endif
 
 # Note that the first rule listed ("all") is what gets made by default,
@@ -120,8 +126,14 @@ ready:
 
 intro:
 	@echo "Build of $(BUILD_ID) starting for $(PLATFORM)!"
+ifdef DONT_BUILD_PARADYN
+	@echo "Build of Paradyn components skipped!"
+endif
 ifdef DONT_BUILD_FE
 	@echo "Build of Paradyn front-end components skipped!"
+endif
+ifdef DONT_BUILD_DAEMON
+	@echo "Build of Paradyn daemon components skipped!"
 endif
 ifdef DONT_BUILD_VISIS
 	@echo "Build of Paradyn visi client components skipped!"
@@ -134,7 +146,7 @@ world: intro
 	$(MAKE) $(fullSystem)
 	@echo "Build of $(BUILD_ID) complete for $(PLATFORM)!"
 
-# "make Paradyn" is also a useful and valid build target!
+# "make Paradyn" and "make DyninstAPI" are also useful and valid build targets!
 
 Paradyn ParadynD ParadynFE ParadynVC basicComps subSystems: 
 	$(MAKE) $($@)
@@ -186,7 +198,7 @@ $(allSubdirs_explicitInstall): install_%: %
 
 
 # dependencies -- keep parallel make from building out of order
-paradynd:  pdutil
+paradynd:  pdutil 
 paradyn: pdutil pdthread 
 pdthread: igen
 visi:  pdutil
@@ -198,7 +210,7 @@ visiClients/phaseTable: visi
 visiClients/histVisi: visi
 visiClients/terrain: visi
 visiClients/termWin: visi pdthread
-rtinst: igen
+rtinst: igen 
 
 # This rule passes down the documentation-related make stuff to
 # lower-level Makefiles in the individual "docs" directories.
@@ -211,3 +223,21 @@ docs install-man:
 		true;						\
 	    fi							\
 	done
+
+
+# The "make nightly" target is what should get run automatically every
+# night.  It uses "make world" to build things in the right order for
+# a build from scratch.  
+#
+# Note that "nightly" should only be run on the primary build site,
+# and does things like building documentation that don't need to be
+# built for each different architecture.  Other "non-primary" build
+# sites that run each night should just run "make clean world".
+
+#nightly:
+#	$(MAKE) clean
+#	$(MAKE) world
+##	$(MAKE) DyninstAPI
+#	$(MAKE) docs
+#	$(MAKE) install-man
+#	chmod 644 /p/paradyn/man/man?/*

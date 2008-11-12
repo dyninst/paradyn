@@ -41,6 +41,7 @@
 #include "dyninstRPC.mrnet.h"
 #include "pdutil/h/mdl.h"
 #include "pdutil/h/mdl_data.h"
+#include "dynutil/h/util.h"
 
 
 static bool do_operation(mdl_var& ret, mdl_var& left, mdl_var& right, unsigned bin_op);
@@ -382,7 +383,7 @@ bool T_dyninstRPC::mdl_v_expr::apply(mdl_var& ret)
         int x;
         if (!temp.get(x))
           return false;
-        ok_ = mdl_data::cur_mdl_data->env->get(ret, var_+pdstring(x));
+        ok_ = mdl_data::cur_mdl_data->env->get(ret, var_+pdstring(itos(x)));
         return ok_;
       }
       mdl_var array(false);
@@ -946,7 +947,7 @@ bool T_dyninstRPC::mdl_constraint::apply( void )
   unsigned size = match_path_->size();
   if (!size) return false;
   for(unsigned dx = 0; dx < size; dx++) {
-    pdstring s = pdstring("$constraint") + pdstring(dx);
+    pdstring s = pdstring("$constraint") + pdstring(utos(dx));
     if (!mdl_data::cur_mdl_data->env->add(s, false, type_)) {
       mdl_data::cur_mdl_data->env->pop(); return false;
     }

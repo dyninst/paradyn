@@ -51,10 +51,12 @@
 #include "common/h/String.h"
 #include "common/h/Dictionary.h"
 #include "paradynd/src/main.h"
+#include "dynutil/h/util.h"
 
 extern MRN::Stream * defaultStream;
 
-dictionary_hash<pdstring, resource*> resource::allResources(pdstring::hash);
+//dictionary_hash<pdstring, resource*> resource::allResources(pdstring::hash);
+dictionary_hash<pdstring, resource*> resource::allResources(stringhash);
 dictionary_hash<unsigned, resource*> resource::res_dict(pd_uiHash);
 
 /*
@@ -187,7 +189,7 @@ resource *resource::newResource(resource *parent, void *handle,
   // are used by paradyn when there are conflicts
 	
 	
-  unsigned id = pdstring::hash(res_string) % ((unsigned)I32_MAX);
+  unsigned id = stringhash(res_string) % ((unsigned)I32_MAX);
   while (res_dict.defines(id)) 
      {
         id = (id + 1) % ((unsigned)I32_MAX);

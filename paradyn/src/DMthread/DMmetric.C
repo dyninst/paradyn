@@ -65,19 +65,46 @@ extern unsigned enable_pd_samplevalue_debug;
 #define sampleVal_cerr if (0) cerr
 #endif /* ENABLE_DEBUG_CERR == 1 */
 
+component::component(paradynDaemon *d, int i, metricInstance *mi) 
+{
+   daemon = d;
+   id = i;
+   // Is this add unique?
+   assert(i >= 0);
+   d->activeMids[(unsigned)id] = mi;
+   sample = 0;
+}
+
+component::~component() 
+{
+   // don't delete aggComponent, since sampleAggregator will
+   // keep around to aggregate it's data
+   MRN::Network * network = daemon->getNetwork() ;
+   MRN::Communicator * comm = network->new_Communicator( );
+   comm->add_EndPoint( daemon->getEndPoint() );
+
+   MRN::Stream *stream = network->new_Stream(comm);
+
+   daemon->disableDataCollection(stream, id);
+   assert(id>=0);
+   daemon->disabledMids += (unsigned) id;
+   daemon->activeMids.undef((unsigned)id);
+}
+
+
 metric::metric(T_dyninstRPC::metricInfo i){
 
-    if(allMetrics.defines(i.name)) return;
-    info.style = i.style;
-    info.units = i.units;
-    info.name = i.name;
-    info.developerMode = i.developerMode;
-    info.unitstype = i.unitstype;
-    info.aggregate = i.aggregate;
-    info.handle = metrics.size();
-    metric *met = this;
-    allMetrics[i.name] = met;
-    metrics += met;
+   if(allMetrics.defines(i.name)) return;
+   info.style = i.style;
+   info.units = i.units;
+   info.name = i.name;
+   info.developerMode = i.developerMode;
+   info.unitstype = i.unitstype;
+   info.aggregate = i.aggregate;
+   info.handle = metrics.size();
+   metric *met = this;
+   allMetrics[i.name] = met;
+   metrics += met;
 }
 
 const T_dyninstRPC::metricInfo *metric::getInfo(metricHandle handle) { 
@@ -99,6 +126,11 @@ const char *metric::getName(metricHandle handle){
      else{
         return 0 ;
      }
+}
+
+metricStyle metric::getStyle()
+{
+   return((metricStyle) info.style); 
 }
 
 const char *metric::getUnits(metricHandle handle){
@@ -1083,4 +1115,19 @@ bool metricInstance::hasData( phaseType phase ) const
       return data != NULL; 
    else 
       return global_data != NULL;
+}
+
+bool metricInstance::convertToIDList(pdvector<u_int> &rl)
+{
+   return resourceList::convertToIDList(focus,rl);
+}
+
+const char *metricInstance::getFocusName()
+{
+   return (resourceList::getName(focus));
+}
+
+resourceList *metricInstance::getresourceList()
+{
+   return(resourceList::getFocus(focus));
 }

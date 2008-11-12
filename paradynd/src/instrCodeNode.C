@@ -54,7 +54,8 @@
 pdstring instrCodeNode::collectThreadName("CollectThread");
 
 dictionary_hash<pdstring, instrCodeNode_Val*> 
-                           instrCodeNode::allInstrCodeNodeVals(pdstring::hash);
+                           instrCodeNode::allInstrCodeNodeVals(::Dyninst::stringhash);
+                           //instrCodeNode::allInstrCodeNodeVals(pdstring::hash);
 
 
 instrCodeNode *instrCodeNode::newInstrCodeNode(pdstring name_, const Focus &f,

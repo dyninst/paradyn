@@ -92,7 +92,7 @@ interfaceVersion: tVERSION tUNS tSEMI { $$.u = $2.u; };
 
 forward_spec: tFORWARD tIDENT tSEMI {
    printf("Found a forward spec\n");
-   Options::forward_decls += *$2.cp; delete $2.cp;
+   Options::forward_decls.push_back(*$2.cp); delete $2.cp;
 };
 
 definitionList:
@@ -217,7 +217,7 @@ optDerived:
 
 fieldDeclList:  { $$.arg_vector = new pdvector<arg*>; }
 | fieldDeclList fieldDecl {
-  (*$1.arg_vector)+= $2.args;
+  (*$1.arg_vector).push_back( $2.args);
 };
 
 fieldDecl: optConst typeName pointers tIDENT tSEMI {
@@ -310,7 +310,7 @@ typeName: tIDENT {
 	element_found = true;
     }
     if (!element_found)
-      Options::stl_types[stl_index].elements += el_data;
+      Options::stl_types[stl_index].elements.push_back(el_data);
   } else
     in_lib = true;
 
@@ -354,10 +354,10 @@ funcArg: optConst typeName pointers {
 
 nonEmptyArg: funcArg {    
   $$.arg_vector = new pdvector<arg*>;
-  (*$$.arg_vector)+= $1.args;
+  (*$$.arg_vector).push_back( $1.args);
 }
 | nonEmptyArg tCOMMA funcArg {
-  (*$1.arg_vector)+= $3.args;
+  (*$1.arg_vector).push_back( $3.args);
 };
 
 arglist:		{ $$.arg_vector = new pdvector<arg*>; }

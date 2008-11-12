@@ -45,6 +45,7 @@
 #include <ctype.h>
 #include "paradynd/src/focus.h"
 #include "paradynd/src/resource.h"
+#include "dynutil/h/util.h"
 
 
 machineHierarchy::machineHierarchy(const pdvector<pdstring> &setupInfo) {
@@ -90,7 +91,7 @@ void machineHierarchy::setPid(int pid) {
     for(const char *p = beg; *p!='{' && *p!=0; p++, ts++)
       *ts = *p;
     *ts = 0;
-    pdstring new_process = pdstring(execName) + "{" + pdstring(pid) + "}";
+    pdstring new_process = pdstring(execName) + "{" + pdstring(itos(pid)) + "}";
     process = new_process;
   }
 }

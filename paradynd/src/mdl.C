@@ -558,7 +558,7 @@ mdld_v_expr::apply_be(BPatch_snippet*& snip)
               snip = new BPatch_paramExpr ((int)index_value);
            else if (var_ == pdstring ("$constraint"))
            {
-              pdstring tmp = pdstring("$constraint") + pdstring(index_value);
+              pdstring tmp = pdstring("$constraint") + pdstring(itos(index_value));
               mdl_var the_var;
               assert (mdl_data::cur_mdl_data->env->get(the_var, tmp));
               
@@ -1130,7 +1130,7 @@ mdld_v_expr::apply_be(mdl_var& ret)
             //XXX
             // this is executing before do_trailing resources has a chance
             // to set the buf. 
-            return (mdl_data::cur_mdl_data->env->get(ret, var_+pdstring(x)));
+            return (mdl_data::cur_mdl_data->env->get(ret, var_+pdstring(itos(x))));
             
             mdl_var array(false);
             
@@ -2498,7 +2498,7 @@ bool createThreadNodes(processMetFocusNode **procNode_arg,
          while(itr != proc->endThrMark()) {
             pd_thread *thr = *itr;
             itr++;
-            pdstring thrName = pdstring("thr_") + pdstring(thr->get_tid()) + 
+            pdstring thrName = pdstring("thr_") + pdstring(itos(thr->get_tid())) + 
                "{" + thr->get_initial_func_name() + "}";
             focus_with_thr.set_thread(thrName);
             threadMetFocusNode *thrNode = threadMetFocusNode::
@@ -2628,7 +2628,7 @@ static bool do_trailing_resources(const pdvector<pdstring>& resource_,
 
    for (unsigned i = 0; i < resource_.size(); i++) {
       pdstring consvar = pdstring("$constraint") + 
-          pdstring(resource_.size()-i-1);
+          pdstring(itos(resource_.size()-i-1));
 
       pdstring trailingRes = resource_[i];
       resPath += resource_[i];

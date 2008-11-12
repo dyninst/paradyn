@@ -863,7 +863,7 @@ void processMetFocusNode::propagateToNewThread(pd_thread *thr)
    // (ie. all of the threads).
    if(getFocus().thread_defined()) return;
 
-   pdstring thrName = pdstring("thr_") + pdstring(thr->get_tid()) + "{" + 
+   pdstring thrName = pdstring("thr_") + pdstring(itos(thr->get_tid())) + "{" + 
                       thr->get_initial_func_name() + "}";
    Focus focus_with_thr = getFocus();
    focus_with_thr.set_thread(thrName);

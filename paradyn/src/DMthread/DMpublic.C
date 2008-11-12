@@ -49,6 +49,7 @@ extern "C" {
 #include <stdio.h>
 #include <iostream>
 #include <fstream>
+#include "paradyn/src/TCthread/tunableConst.h"
 #include "dyninstRPC.mrnet.CLNT.h"
 #include "dataManager.thread.h"
 #include "dataManager.thread.SRVR.h"
@@ -59,6 +60,8 @@ extern "C" {
 #include "common/h/Time.h"
 #include "pdutil/h/pdSample.h"
 #include "pdutil/h/pdDebugOstream.h"
+#include "pdutil/h/tunableConst.h"
+#include "pdutil/h/stringPool.h"
 #include "DMmetric.h"
 #include "DMdaemon.h"
 #include "DMresource.h"
@@ -254,12 +257,16 @@ bool dataManager::startMRNet(const char * idaemon_name,
 
     paradynDaemon::instantiateDefaultDaemon(de, ihosts);
 
+#if 0
     if( de->getMRNetNetwork()->fail() ) {
         pdstring msg = pdstring("Failed: MRNet new network.");
         //TODO: create new error code
         uiMgr->showError(90,P_strdup(msg.c_str()));
         return false;
     }
+#else
+    fprintf(stderr, "%s[%d]:  FIXME mrnet issue here\n", FILE__, __LINE__);
+#endif
     
     paradynDaemon::initializeDaemon(de);
     //uiMgr->updateStatusLine(DMstatus.c_str(),P_strdup("ready"));

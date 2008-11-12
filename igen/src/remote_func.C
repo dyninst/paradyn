@@ -43,6 +43,10 @@
 
 #include "remote_func.h"
 #include "Options.h"
+#include <iostream>
+using std::cerr;
+using std::endl;
+
 
 static bool is_base_type(pdstring type)
 {
@@ -313,13 +317,15 @@ bool remote_func::handle_request(const pdstring &spaces, ofstream &out_stream,
 	   pdstring type = call_sig_.type();
 	   if( ! is_base_type(type) )
 	     {
-	       if( type.prefixed_by(Options::type_prefix()) ) 
+	       if ( prefixed_by(type,Options::type_prefix().c_str()) ) 
+	       //if( type.prefixed_by(Options::type_prefix()) ) 
 		 {
 		   //need to remove the type_prefix from type for destructor call
 		   int prefix_length = Options::type_prefix().length();
 		   type = type.substr(prefix_length, type.length() - prefix_length);
 		 }
-	       if( type.suffixed_by("*") )
+	       if( suffixed_by(type, "*") )
+	       //if( type.suffixed_by("*") )
 		 {
 		   //need to remove * from type and call destructor on non-NULL deref'ed pointer
 		   type = type.substr(0, type.length()-1);
@@ -432,12 +438,14 @@ bool remote_func::free_async(const pdstring &spaces,
    if (call_sig_.type() != "void") {
      pdstring type = call_sig_.type();
      if( ! is_base_type(type) ) {
-       if( type.prefixed_by(Options::type_prefix()) ) {
+       if( prefixed_by(type, Options::type_prefix().c_str()) ) {
+       //if( type.prefixed_by(Options::type_prefix()) ) {
          //need to remove the type_prefix from type for destructor call
          int prefix_length = Options::type_prefix().length();
          type = type.substr(prefix_length, type.length() - prefix_length);
        }
-       if( type.suffixed_by("*") ) {
+       if( prefixed_by(type,"*") ) {
+       //if( type.suffixed_by("*") ) {
          //need to remove * from type and call destructor on non-NULL deref'ed pointer
          type = type.substr(0, type.length()-1);
          out_stream << spaces << "   if( *message != NULL )\n";

@@ -54,6 +54,11 @@
 #include <iostream>
 #include <stdio.h>
 #include "common/h/Ident.h"
+#include "dynutil/h/util.h"
+#include <iostream>
+using std::cerr;
+using std::endl;
+
 
 #if defined(os_windows)
 #include "pdutil/h/winMain.h"
@@ -67,7 +72,7 @@ const char V_igen[] = "$Paradyn: v5.0 igen #0 " __DATE__ __TIME__ "paradyn@cs.wi
 #endif
 
 bool Options::dont_gen_handle_err = false;
-dictionary_hash<pdstring, type_defn*> Options::all_types(pdstring::hash);
+dictionary_hash<pdstring, type_defn*> Options::all_types(::Dyninst::stringhash);
 pdvector<type_defn*> Options::vec_types;
 pdvector<message_layer*> Options::all_ml;
 pdvector<Options::stl_data> Options::stl_types;
@@ -409,10 +414,10 @@ static void init_types() {
   Options::stl_data sd;
   sd.name = "pdvector"; sd.include_file = "common/h/Vector.h";
   sd.need_include = false; sd.pragma_name = "Vector.h";
-  Options::stl_types += sd;
+  Options::stl_types.push_back(sd);
   Options::el_data el;
   el.name = "pdstring"; el.type = "pdstring"; el.stars = 0;
-  Options::stl_types[0].elements += el;
+  Options::stl_types[0].elements.push_back(el);
 
   Options::add_type("void", false, false, false, false, "", type_defn::TYPE_SCALAR, false,
                     true, NULL);
@@ -594,10 +599,10 @@ static void init_ml() {
     message_layer tcp_ml("tcp", message_layer::Med_other, "", "bool_t", "*", "XDR", "*",
     message_layer::AS_many, "false", "true");
   */
-  Options::all_ml += xdr_ml;
-  Options::all_ml += thrd_ml; 
-  Options::all_ml += rpc_ml;
-  Options::all_ml += mrnet_ml;
+  Options::all_ml.push_back(xdr_ml);
+  Options::all_ml.push_back(thrd_ml); 
+  Options::all_ml.push_back(rpc_ml);
+  Options::all_ml.push_back(mrnet_ml);
 }
 
 int main(int argc, char *argv[]) {

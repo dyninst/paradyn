@@ -45,6 +45,9 @@
 
 #include "common/h/Vector.h"
 #include "common/h/String.h"
+#include <iostream>
+using std::cerr;
+using std::endl;
 
 
 class Hierarchy {  
@@ -316,7 +319,7 @@ class Focus {
 };
 
 
-ostream& operator<<(ostream &s, const Focus &f);
+//ostream& operator<<(ostream &s, const Focus &f);
 
 // returns a focus, the same as the given focus, only with the given pid
 Focus adjustFocusForPid(const Focus &foc, int pid);

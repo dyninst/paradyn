@@ -311,7 +311,8 @@ void processMet::dump() const
 
 bool processMet::addProcess(processMet *pm)
 {
-  if ((pm == NULL) || (pm->name() == NULL) || (pm->command() == NULL)) {
+  if ((pm == NULL) || (pm->name() == nullString) || (pm->command() == nullString)) {
+  //if ((pm == NULL) || (pm->name() == NULL) || (pm->command() == NULL)) {
     metParseError = ERR_BAD_ARGS;
     delete pm;
 	pm = NULL;
@@ -352,7 +353,8 @@ void visiMet::dump() const
 
 bool visiMet::addVisi(visiMet *vm)
 {
-  if ((vm == NULL) || (vm->name() == NULL) || (vm->command() == NULL)) {
+  if ((vm == NULL) || (vm->name() == nullString) || (vm->command() == nullString)) {
+  //if ((vm == NULL) || (vm->name() == NULL) || (vm->command() == NULL)) {
     metParseError = ERR_BAD_ARGS;
     delete vm; vm = 0;
     return false;

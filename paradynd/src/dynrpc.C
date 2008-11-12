@@ -111,7 +111,7 @@ pdstring dynRPC::getStatus(MRN::Stream * /* stream */,int id)
 {
    pd_process *proc = getProcMgr().find_pd_process(id);
    if (!proc) {
-      pdstring ret = pdstring("PID: ") + pdstring(id);
+      pdstring ret = pdstring("PID: ") + pdstring(itos(id));
       ret += pdstring(" not found for getStatus\n");
       return (P_strdup(ret.c_str()));
    } 
@@ -742,7 +742,7 @@ void dynRPC::staticCallgraphReportsComplete( MRN::Stream * )
                                p->wasRunningWhenAttached());
     p->setCanReportResources(true);
     p->reportInitialThreads();
-    pdstring buffer = pdstring("PID=") + pdstring(p->getPid());
+    pdstring buffer = pdstring("PID=") + pdstring(itos(p->getPid()));
     buffer += pdstring(", ready");
     pdstatusLine(buffer.c_str());
 

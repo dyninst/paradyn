@@ -209,7 +209,7 @@ pd_process *pd_attachProcess(const pdstring &progpath, int pid)
 	getProcMgr().addProcess(proc);
 	proc->init();
 	
-	pdstring buffer = pdstring("PID=") + pdstring(proc->getPid());
+	pdstring buffer = pdstring("PID=") + pdstring(itos(proc->getPid()));
 	buffer += pdstring(", ready");
 	pdstatusLine(buffer.c_str());
 	
@@ -232,13 +232,13 @@ pd_process *pd_attachToCreatedProcess(const pdstring &/*progpath*/,
 void pd_process::init()
 {
 	static bool has_mt_resource_heirarchies_been_defined = false;
-	pdstring buffer = pdstring("PID=") + pdstring(getPid());
+	pdstring buffer = pdstring("PID=") + pdstring(itos(getPid()));
 	buffer += pdstring(", initializing daemon-side data");
 	pdstatusLine(buffer.c_str());
 	
 	theVariableMgr = new variableMgr(this, getSharedMemMgr(),
 																	 maxNumberOfThreads());
-	buffer = pdstring("PID=") + pdstring(getPid());
+	buffer = pdstring("PID=") + pdstring(itos(getPid()));
 	buffer += pdstring(", posting call graph information");
 	pdstatusLine(buffer.c_str());
 	
@@ -357,7 +357,7 @@ pd_process::pd_process(const pdstring argv0, pdvector<pdstring> &argv,
         //  this will cause an assertion failure in newResource()
         fprintf(stderr, "%s[%d]:  unnamed image!\n", __FILE__, __LINE__);
     }
-    pdstring buff = pdstring(getPid()); // + pdstring("_") + getHostName();
+    pdstring buff = pdstring(itos(getPid())); // + pdstring("_") + getHostName();
     
     rid = resource::newResource(machineResource, // parent
                                 (void*)this, // handle
@@ -417,7 +417,7 @@ pd_process::pd_process(const pdstring &progpath, int pid)
       fprintf(stderr, "%s[%d]:  unnamed image!\n", __FILE__, __LINE__);
     }
 
-    pdstring buff = pdstring(getPid()); // + pdstring("_") + getHostName();
+    pdstring buff = pdstring(itos(getPid())); // + pdstring("_") + getHostName();
     rid = resource::newResource(machineResource, // parent
                                 (void*)this, // handle
                                 nullString, // abstraction
@@ -494,7 +494,7 @@ pd_process::pd_process(const pd_process &parent, BPatch_process *childDynProc) :
      fprintf(stderr, "%s[%d]:  unnamed image!\n", __FILE__, __LINE__);
    }
 
-   pdstring buff = pdstring(getPid()); // + pdstring("_") + getHostName();
+   pdstring buff = pdstring(itos(getPid())); // + pdstring("_") + getHostName();
    rid = resource::newResource(machineResource, // parent
                                (void*)this, // handle
                                nullString, // abstraction
@@ -848,7 +848,7 @@ bool pd_process::loadParadynLib(load_cause_t ldcause)
 
    assert(isStopped());
    
-   pdstring buffer = pdstring("PID=") + pdstring(getPid());
+   pdstring buffer = pdstring("PID=") + pdstring(itos(getPid()));
    buffer += pdstring(", loading Paradyn RT lib via iRPC");
    pdstatusLine(buffer.c_str());
    
@@ -872,7 +872,7 @@ bool pd_process::loadParadynLib(load_cause_t ldcause)
 
    setLibState(paradynRTState, libLoaded);
    
-   buffer = pdstring("PID=") + pdstring(getPid());
+   buffer = pdstring("PID=") + pdstring(itos(getPid()));
    buffer += pdstring(", finalizing Paradyn RT lib");
    pdstatusLine(buffer.c_str());
    
@@ -951,7 +951,7 @@ bool pd_process::finalizeParadynLib(load_cause_t ldcause)
    if (ldcause != attach_load) {
       // Install initial instrumentation requests
       installInstrRequests(initialRequestsPARADYN); 
-      str=pdstring("PID=") + pdstring(dyninst_process->getPid()) + 
+      str=pdstring("PID=") + pdstring(itos(dyninst_process->getPid())) + 
          ", propagating mi's...";
       pdstatusLine(str.c_str());
    }
@@ -960,7 +960,7 @@ bool pd_process::finalizeParadynLib(load_cause_t ldcause)
       pd_execCallback(this);
    }
 
-   str=pdstring("PID=") + pdstring(dyninst_process->getPid()) + 
+   str=pdstring("PID=") + pdstring(itos(dyninst_process->getPid())) + 
       ", executing new-prog callback...";
    pdstatusLine(str.c_str());
     
@@ -1008,7 +1008,7 @@ bool pd_process::getParadynRTname()
         } else {
             pdstring msg = pdstring("Environment variable " + pdstring(ParadynEnvVar)
                                 + " has not been defined for process "
-                                + pdstring(getPid()));
+                                + pdstring(itos(getPid())));
             showErrorCallback(101, msg);
             cerr << "Environment variable " << ParadynEnvVar << " not set!" << endl;
             return false;
@@ -1426,7 +1426,7 @@ void pd_process::FillInCallGraphStatic(bool init_graph, unsigned *checksum )
       {
          *checksum += pd_process::calculate_Checksum(img->get_file());
          *checksum += pd_process::calculate_Checksum(entry_res->full_name());
-         *checksum += pd_process::calculate_Checksum(pdstring(thr));
+         *checksum += pd_process::calculate_Checksum(pdstring(itos(thr)));
       }
 
    }
@@ -2154,7 +2154,7 @@ void pd_process::reportOneThread(pd_thread *pd_thr)
 	metricFocusNode::handleNewThread(this, pd_thr);
 		 
 	//Create new resource for this thread
-	pdstring buffer = pdstring("thr_") + pdstring(pd_thr->get_tid()) + 
+	pdstring buffer = pdstring("thr_") + pdstring(itos(pd_thr->get_tid())) + 
 		pdstring("{") + pd_thr->get_initial_func_name() + pdstring("}");
 	resource *rid = resource::newResource(get_rid(),
                                          (void *) pd_thr,

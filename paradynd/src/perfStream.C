@@ -310,7 +310,8 @@ static void doDeferredInstrumentation()
           deferredMetricIDs.erase(itr);
           
           if(cbi != NULL) {
-              if(mdl_data::cur_mdl_data->env->getSavedErrorString() != NULL) {
+              if(mdl_data::cur_mdl_data->env->getSavedErrorString() != nullString) {
+              //if(mdl_data::cur_mdl_data->env->getSavedErrorString() != NULL) {
                   cbi->updateResponse( mid,
                                        inst_insert_failure,
                                        mdl_data::cur_mdl_data->env->getSavedErrorString() );
@@ -516,9 +517,13 @@ void controllerMainLoop(bool check_buffer_first)
       //
       //FD_SET(tp->get_sock(), &readSet);
       //FD_SET(tp->get_sock(), &errorSet);
+#if 0
       FD_SET(ntwrk->get_SocketFd(), &readSet);
       FD_SET(ntwrk->get_SocketFd(), &errorSet);
       width = ntwrk->get_SocketFd();
+#else
+      fprintf(stderr, "%s[%d]: FIXME:  MRNET compilation issue here\n", FILE__, __LINE__);
+#endif
 
       // Mmmm bpatch FD interface...
 #if !defined(os_windows)
@@ -572,12 +577,16 @@ void controllerMainLoop(bool check_buffer_first)
       }
 
 #if !defined(os_windows)
+#if 0
       if (FD_ISSET(ntwrk->get_SocketFd(), &errorSet)) {
           // Don't forward more messages to the frontend.
           frontendExited = true;
           // paradyn is gone so we go too.
           cleanUpAndExit(-1);
       }
+#else
+      fprintf(stderr, "%s[%d]: FIXME:  MRNET compilation issue here\n", FILE__, __LINE__);
+#endif
 #else
       // WinSock indicates the socket closed as a read event.  When
       // reading on the socket, the number of bytes available is zero.
@@ -606,6 +615,7 @@ void controllerMainLoop(bool check_buffer_first)
       // request - naim
       if (!delayIGENrequests) {
           // Check if something has arrived from Paradyn on our igen link.
+#if 0
           if (FD_ISSET(ntwrk->get_SocketFd(), &readSet)) {
               bool processed_data = true;
               while (processed_data) {
@@ -616,6 +626,9 @@ void controllerMainLoop(bool check_buffer_first)
                   }
               }
           }
+#else
+          fprintf(stderr, "%s[%d]: FIXME:  MRNET compilation issue here\n", FILE__, __LINE__);
+#endif
           while (tp->buffered_requests()) {
               T_dyninstRPC::message_tags ret = tp->process_buffered(defaultStream );
               if (ret == T_dyninstRPC::error) {
@@ -640,7 +653,7 @@ static void createResource(int pid, traceHeader *header, struct _newresource *r)
      case RES_TYPE_INT:    mdlType = MDL_T_INT; break;
      default: 
         pdstring msg = pdstring("Invalid resource type reported on trace stream from PID=")
-           + pdstring(pid);
+           + pdstring(itos(pid));
         showErrorCallback(36,msg);
         cerr << "cr - ret A\n";
         return;
@@ -674,7 +687,7 @@ static void createResource(int pid, traceHeader *header, struct _newresource *r)
    else {
       pdstring msg = pdstring("Unknown resource '") + pdstring(r->name) +
          pdstring("' reported on trace stream from PID=") +
-		   pdstring(pid);
+		   pdstring(itos(pid));
       showErrorCallback(36,msg);
    }
    //cerr << "cr - return normal\n";
@@ -697,7 +710,7 @@ static void updateResource(int pid, traceHeader *, struct _updtresource *r)
      case RES_TYPE_INT:    type = MDL_T_INT; break;
      default:
         pdstring msg = pdstring("Invalid resource type reported on trace stream from PID=")
-           + pdstring(pid);
+           + pdstring(itos(pid));
         showErrorCallback(36,msg);
         cerr << "cr - ret A\n";
         return;
@@ -738,7 +751,7 @@ static void updateResource(int pid, traceHeader *, struct _updtresource *r)
    else {
       pdstring msg = pdstring("Unknown resource '") + pdstring(r->name) +
          pdstring("' reported on trace stream from PID=") +
-                   pdstring(pid);
+                   pdstring(itos(pid));
       showErrorCallback(36,msg);
    }
    //for(int i = 0; i < the_name.size(); ++i)

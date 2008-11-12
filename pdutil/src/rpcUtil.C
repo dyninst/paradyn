@@ -1423,7 +1423,9 @@ const pdstring getHostName()
 
     const pdstring simplename = networkname.substr(0,index);
     //cerr << "Doing regex check for " << simplename.c_str() << " ... ";
-    if ( simplename.regexEquiv("[0-9]*",false) ) {
+    if ( regexEquiv(simplename.c_str(),"[0-9]*",false) ) 
+    {
+    //if ( simplename.regexEquiv("[0-9]*",false) ) 
         //cerr << "true!\n";
         cerr << "Cannot determine local hostname. Using IP address!" << endl;
         return (networkname);
@@ -1451,7 +1453,9 @@ const pdstring getDomainName (const pdstring hostname)
     } else {
         const pdstring simplename = networkname.substr(0,idx);
         const pdstring domain = networkname.substr(idx+1,networkname.length());
-        if (simplename.regexEquiv("[0-9]*",true)) {
+        if (regexEquiv(simplename.c_str(), "[0-9]*",true)) 
+        {
+        //if (simplename.regexEquiv("[0-9]*",true)) 
             cerr << "Cannot determine domain name from network name: <"
                  << simplename << ">" << endl;
             return ("");

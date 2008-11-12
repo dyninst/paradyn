@@ -78,7 +78,9 @@ bool P_xdr_send(XDR *xdr, const int64_t &);
 bool P_xdr_send(XDR *xdr, const float &);
 bool P_xdr_send(XDR *xdr, const double &);
 bool P_xdr_send(XDR *xdr, const byteArray &);
+#if defined (cap_use_pdstring)
 bool P_xdr_send(XDR *xdr, const pdstring &);
+#endif
 bool P_xdr_send(XDR *xdr, const std::string &);
 
 bool P_xdr_recv(XDR *xdr, bool &);
@@ -99,7 +101,9 @@ bool P_xdr_recv(XDR *xdr, int64_t &);
 bool P_xdr_recv(XDR *xdr, float &);
 bool P_xdr_recv(XDR *xdr, double &);
 bool P_xdr_recv(XDR *xdr, byteArray &);
+#if defined (cap_use_pdstring)
 bool P_xdr_recv(XDR *xdr, pdstring &);
+#endif
 bool P_xdr_recv(XDR *xdr, std::string &);
 
 //--------------------

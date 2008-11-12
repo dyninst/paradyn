@@ -715,11 +715,15 @@ main( int argc, char* argv[] )
         perror("gethostname()");
         exit(-1);
     }
+#if 0
     ntwrk = new MRN::Network( parHostname.c_str(), parPort, myHostname, myRank );
     if( ntwrk->fail() ) {
         fprintf(stderr, "backend_init() failed\n");
         exit(-1);
     }
+#else
+    fprintf(stderr, "%s[%d]:  FIXME:  commented out MRNet init\n", FILE__, __LINE__);
+#endif
 
     //----------------------------------------------------------------
     // Wait here for a stream

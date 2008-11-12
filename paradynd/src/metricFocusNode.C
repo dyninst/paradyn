@@ -405,7 +405,7 @@ bool startCollecting(pdstring& metric_name, pdvector<u_int>& focus,
 {
     pdstring temp = metric_name;
     for (unsigned i = 0; i < focus.size(); i++) 			{
-       temp += (pdstring(" ") + pdstring(focus[i]));
+       temp += (pdstring(" ") + pdstring(itos(focus[i])));
 			}
     //fprintf(stderr,"A. in startCollecting failed to insert temp = %s\n",temp.c_str());
 		
@@ -443,7 +443,8 @@ bool startCollecting(pdstring& metric_name, pdvector<u_int>& focus,
     else if(insert_status == inst_insert_failure) {
        // error message already displayed in processMetFocusNode::insertInstrum.
        delete machNode;
-       if(  mdl_data::cur_mdl_data->env->getSavedErrorString() != NULL) {
+       if(  mdl_data::cur_mdl_data->env->getSavedErrorString() != nullString) {
+       //if(  mdl_data::cur_mdl_data->env->getSavedErrorString() != NULL) {
           cbi->addResponse( mid,
                             inst_insert_failure,
                             mdl_data::cur_mdl_data->env->getSavedErrorString() );

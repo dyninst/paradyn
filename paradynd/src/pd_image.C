@@ -48,7 +48,8 @@
 
 pdvector<pd_image *> pd_image::all_pd_images;
 extern bool mdl_get_lib_constraints(pdvector<pdstring> &);
-static dictionary_hash<pdstring, pdstring> func_constraint_hash(pdstring::hash);
+//static dictionary_hash<pdstring, pdstring> func_constraint_hash(pdstring::hash);
+static dictionary_hash<pdstring, pdstring> func_constraint_hash(::Dyninst::stringhash);
 static bool func_constraint_hash_loaded = false;
 bool cache_func_constraint_hash();
 bool function_is_excluded(BPatch_function *f, pdstring modname);
